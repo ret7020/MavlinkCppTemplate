@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mavlink/all/mavlink.h"
+#include "libs/mavlink/all/mavlink.h"
 #include "config.h"
 #include "uart.h"
 
@@ -11,7 +11,7 @@ void send_heartbeat(int uart_fd, int system_id=SYSTEM_ID, int component_id=COMPO
         component_id, 
         &msg, 
         MAV_TYPE_QUADROTOR, 
-        MAV_AUTOPILOT_ARDUPILOTMEGA, 
+        MAV_AUTOPILOT_PX4, 
         MAV_MODE_AUTO_ARMED, 
         0, 
         MAV_STATE_ACTIVE
@@ -60,6 +60,27 @@ void set_offboard_mode(int uart_fd, int system_id=SYSTEM_ID, int component_id=CO
     );
 
     tx_mavlink(uart_fd, &msg);
+}
+
+
+void set_arm_disarm(int uart_fd, float mode, int system_id=SYSTEM_ID, int component_id=COMPONENT_ID) {
+    // mode == 1 - arm
+    // mode == 0 - disarm
+
+    mavlink_message_t msg;
+    mavlink_msg_command_long_pack(
+        system_id,
+        component_id,
+        &msg,
+        1,
+        1,
+        MAV_CMD_COMPONENT_ARM_DISARM,
+        0,
+        mode, 0, 0, 0, 0, 0, 0
+    );
+
+    tx_mavlink(uart_fd, &msg);
+
 }
 
 void send_vpe(int uart_fd, float x, float y, float z, float roll, float pitch, float yaw, int system_id=SYSTEM_ID, int component_id=COMPONENT_ID) {
